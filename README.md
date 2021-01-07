@@ -54,7 +54,9 @@ Now the script will run on bootup, so PIA will connect immediately.
 
 ## Run regularly to confirm PIA is still connected (makeshift keep-alive)
 >sudo crontab -e
+
 add the following to end of file:
+
 >*/2 * * * * /usr/local/bin/piactl-checker.sh >/dev/null 2>&1
   
 With this the script will run every 2 minutes to ensure it's still connected. I've found that piactld will allow the connection to go stale due to inactivity and it needs to be reconnected. The script is written to perform checks and should only attempt to reconnect if needed, and only attempt to update Transmissions' port if needed.

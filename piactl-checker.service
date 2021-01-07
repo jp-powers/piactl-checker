@@ -1,0 +1,10 @@
+[Unit]
+Description=piactl checker on boot
+After=syslog.target network.target piavpn.service
+
+[Service]
+PrivateTmp=true
+ExecStart=/usr/local/bin/piactl-checker.sh
+
+[Install]
+WantedBy=multi-user.target

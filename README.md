@@ -36,6 +36,10 @@ To set a region:
 
     piactl set region <region name from above>
   
+Now we need to enable piactl to request a port forward port from the region. To do this
+
+    piactl set requestportforward true
+
 You may need to also install transmission-remote if you don't already have it. I believe it's baked into the Ubuntu apt for transmission-cli or transmission-daemon, so the following should already be installed for you or have what you need if not:
 
     sudo apt install transmission-cli transmission-common transmission-daemon

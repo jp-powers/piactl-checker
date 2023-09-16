@@ -22,6 +22,9 @@ CONNECTSTATUS=$(/usr/local/bin/piactl get connectionstate)
 
 if [ $CONNECTSTATUS == "Connected" ]; then
 	echo 'Already connected'
+elif [[ $CONNECTSTATUS =~ "Timed" ]]; then
+	echo "Timed out. Exiting."
+	exit 1
 else
 	/usr/local/bin/piactl connect
 	echo 'Reconnecting'

@@ -4,10 +4,14 @@
 ## can be run with a crontab job to ensure connection is up and running, recommend frequent test
 
 #basic config options
-TRANSUSER=user
-TRANSPASS=password
-TRANSHOST=localip
+TRANSUSER=<transmission username>
+TRANSPASS=<transmission password>
+TRANSHOST=<transmission web ui IP>
 
+## NOTE ON TRANSPASS=
+# if you use a complex password, as in randomly generated string with upper/lower case letters, numbers, and special characters, use single quotes to surround the password.
+# example: TRANSPASS='AbCd1234!@#$'
+# if you are certain you've entered the user name, password, and IP address correctly, this is likely your problem.
 
 #!/bin/bash
 ## check if PIA is connected, if not, reconnect
@@ -48,7 +52,7 @@ done
 PORTOPEN=`/usr/bin/transmission-remote $TRANSHOST -n $TRANSUSER:$TRANSPASS --port-test | cut -f2 -d":" | sed 's/ //g'`
 
 # if port isn't open, provide new port forward value into transmission
-if [ $PORTOPEN != "Yes" ];then
+if [ "$PORTOPEN" != "Yes" ];then
 	echo "Updating Transmission port to $PIAPORT"
 	/usr/bin/transmission-remote $TRANSHOST -n $TRANSUSER:$TRANSPASS --port $PIAPORT
 else

@@ -74,6 +74,22 @@ add the following to end of file:
   
 With this the script will run every 2 minutes to ensure it's still connected. I've found that piactld will allow the connection to go stale due to inactivity and it needs to be reconnected. The script is written to perform checks and should only attempt to reconnect if needed, and only attempt to update Transmissions' port if needed.
 
+## Optional: Add route for accessibility via personal on network VPN
+
+The following is purely optional and very dependent on your own home network setup. On my home network, I use a pfSense router with a Wireguard VPN tunnel. I have my phone, laptop, and a travel router setup as peers on this network. The idea is if I'm mobile the wireguard VPN is on and I'm routing all traffic from my phone, laptop, or the travel router through my home network. This gets me pfblocker based ad blocking, but also gets access to all my home network hosted devices.
+
+The issue with the way we're setting up piactl is that it will take on an `ip route` scope that makes accessing this particular device more difficult. Essentially, the PIA VPN may now attempt to "capture" traffic that is otherwise "local network" traffic. This may be a unique case for myself, as I use 10.14.0.0 ranges of IP subnets for my home network, and PIA uses 10.0.0.0 ranges as well for their VPN subets. Either way, if you happen to have a similar issue (aka: everything works fine when physically on local network but when you are remote and VPN into your home network you can't connect to the machine running piactl), there's a simple fix.
+
+What we'll be doing is adding a simple ip route to explicitly tell the machine "local traffic stays local." On my network, I can run the following command on the machine to establish this route:
+
+    sudo ip route add 10.14.0.0/16 via 10.14.1.1 dev enp6s18 proto static onlink
+
+Once run, I tested it by disconnecting my phone from my home wifi, letting the wireguard app connect to my VPN via 5G, and now when I attempt to connect to my VM running piactl it connects without issue. This is good for a test, but this ip route needs to be made each time the machine boots as well. This will depend on your OS, but on Debian 12 I edited the `/etc/network/interfaces` file. Identifying the iface for the ethernet adapter, simply adding an up `ip route add`, tabbed in once, with the full command we used above (dropping sudo this time) will create the rule when networking is established:
+
+    iface enp6s18 inet dhcp
+        up ip route add 10.14.0.0/16 via 10.14.1.1 dev enp6s18 proto static onlink
+
+Then running `sudo systemctl restart networking.service` will restart networking, with this new rule. If you can still connect over your own VPN, you're good. On Ubuntu, instead of `/etc/network/interfaces`, you would need to change a file in `/etc/netplan`, the formatting is different for this so find an appropriate guide for assistance. In other distros it might be different as well. A simple Google search for "<distro name> <distro version> add ip route" should help. Including the distro version number will help ensure you're finding accurate guides as many distros have changed between different network management systems regularly.
 # TODO
 
 From what I can tell this is working very well for my needs. Transmission is significantly faster with port forwarding actually working, and I believe this will be ... sustainable I guess would be the right word. Every guide I've found for setting up PIA/Transmission port forwarding is aged and PIA's changes over the years have broken them in various ways. This method utilizes the PIA provided client, so outside of them changing the commands to perform the necessary actions it should be quite stable and require little change. So, the script itself shouldn't need to change much but I'd like to do the following:
